@@ -6,8 +6,13 @@
 
 {% block content %}
 
-  <h1>This is Page 2</h1>
+  <h1>This is the stats Page</h1>
 
-  <p>Lorem ipsum</p>
+  <p>When login you can see your stats: win, loses, ties.</p>
+  {% if logged_in %}
+  
+  {% else %}
+  <p>login to see your stats</p>
+  {% endif %}
 
 {% endblock %}
