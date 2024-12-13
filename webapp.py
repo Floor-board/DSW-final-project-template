@@ -10,11 +10,12 @@ import os
 import time
 import pymongo
 import sys
- 
+import pydealer
+
 app = Flask(__name__)
 
-app.debug = False #Change this to False for production
-#os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1' #Remove once done debugging
+app.debug = True #Change this to False for production
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1' #Remove once done debugging
 
 app.secret_key = os.environ['SECRET_KEY'] #used to sign session cookies
 oauth = OAuth(app)
@@ -55,12 +56,13 @@ def inject_logged_in():
 
 @app.route('/')
 def home():
+    session["game_started"] = "No"
     return render_template('home.html')
 
 #redirect to GitHub's OAuth page and confirm callback URL
 @app.route('/login')
 def login():   
-    return github.authorize(callback=url_for('authorized', _external=True, _scheme='https')) #callback URL must match the pre-configured callback URL
+    return github.authorize(callback=url_for('authorized', _external=True, _scheme='http')) #callback URL must match the pre-configured callback URL
 
 @app.route('/logout')
 def logout():
@@ -92,17 +94,49 @@ def renderPage1():
         user_data_pprint = pprint.pformat(session['user_data'])#format the user data nicely
     else:
         user_data_pprint = '';
-    return render_template('page1.html',dump_user_data=user_data_pprint)
+    deck = pydealer.Deck()
+    deck.shuffle()
+    hand = deck.deal(7)
+    return render_template('page1.html',dump_user_data=user_data_pprint, hand=hand)
 
 @app.route('/page2')
 def renderPage2():
     return render_template('page2.html')
+
+@app.route('/Game')
+def renderGame():
+    deck = pydealer.Deck()
+    MyDeck = deck.shuffle()
+    if session['game_started'] == "No": 
+        session["Card1"] = deck.deal(1)
+        session["Card2"] = deck.deal(1)
+        session["Card3"] = deck.deal(1)
+        session["Card4"] = deck.deal(1)
+        session["Card5"] = deck.deal(1)
+        session["game_started"] = "Yes"
+        Card1 = session["Card1"]
+        Card2 = session["Card2"]
+        Card3 = session["Card3"]
+        Card4 = session["Card4"]
+        Card5 = session["Card5"]
+    else:
+        Card1 = session["Card1"]
+        Card2 = session["Card2"]
+        Card3 = session["Card3"]
+        Card4 = session["Card4"]
+        Card5 = session["Card5"]
+    return render_template('Game.html', deck=MyDeck, Card1 = Card1, Card2 = Card2, 
+    Card3 = Card3, Card4 = Card4, Card5 = Card5)
 
 #the tokengetter is automatically called to check who is logged in.
 @github.tokengetter
 def get_github_oauth_token():
     return session['github_token']
 
+@app.route('/page1', methods=["GET"])
+def start_button():
+    start = request.form.get('submit')
+    return render_template('Game.html')
 
 if __name__ == '__main__':
     app.run()

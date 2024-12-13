@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+
+{% set active_page = "page1" %}
+
+{% block title %}Game{% endblock %}
+
+{% block content %}
+
+<h1>War!!!</h1>
+<p>Hand, click one of the cards to play the card</p>
+
+<form action="/Game">
+<input type="submit" value="{{Card1}}">
+</form>
+
+<button>{{Card1}}</button>
+<button>{{Card2}}</button>
+<button>{{Card3}}</button>
+<button>{{Card4}}</button>
+<button>{{Card5}}</button>
+
+{% endblock %}

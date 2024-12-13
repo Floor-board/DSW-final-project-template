@@ -1,0 +1,5 @@
+set SECRET_KEY=whatever
+set GITHUB_CLIENT_ID=Ov23liTCkOrzhhRNPPpO
+set GITHUB_CLIENT_SECRET=c30d728871c6e1da084981991a3af8604d1fb915
+set MONGO_CONNECTION_STRING=mongodb+srv://emb14:GCn9uZLUDgarPHCU@cluster0.7yxs6.mongodb.net/?retryWrites=true
+set MONGO_DBNAME=stats
