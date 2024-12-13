@@ -4,13 +4,14 @@ from flask_apscheduler import APScheduler
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask_oauthlib.client import OAuth
 from bson.objectid import ObjectId
-
+import random
 import pprint
 import os
 import time
 import pymongo
 import sys
- 
+import pydealer
+
 app = Flask(__name__)
 
 app.debug = False #Change this to False for production
@@ -47,7 +48,7 @@ except Exception as e:
     print(e)
 
 #context processors run before templates are rendered and add variable(s) to the template's context
-#context processors must return a dictionary 
+#context processors must return a dictionary
 #this context processor adds the variable logged_in to the conext for all templates
 @app.context_processor
 def inject_logged_in():
@@ -59,7 +60,7 @@ def home():
 
 #redirect to GitHub's OAuth page and confirm callback URL
 @app.route('/login')
-def login():   
+def login():  
     return github.authorize(callback=url_for('authorized', _external=True, _scheme='http')) #callback URL must match the pre-configured callback URL
 
 @app.route('/logout')
@@ -92,7 +93,10 @@ def renderPage1():
         user_data_pprint = pprint.pformat(session['user_data'])#format the user data nicely
     else:
         user_data_pprint = '';
-    return render_template('page1.html',dump_user_data=user_data_pprint)
+    deck = pydealer.Deck()
+    deck.shuffle()
+    hand = deck.deal(7)
+    return render_template('page1.html',dump_user_data=user_data_pprint, hand=hand)
 
 @app.route('/page2')
 def renderPage2():
@@ -102,6 +106,7 @@ def renderPage2():
 @github.tokengetter
 def get_github_oauth_token():
     return session['github_token']
+
 
 
 if __name__ == '__main__':
