@@ -14,7 +14,7 @@ import pydealer
 
 app = Flask(__name__)
 
-app.debug = False #Change this to False for production
+app.debug = True #Change this to False for production
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1' #Remove once done debugging
 
 app.secret_key = os.environ['SECRET_KEY'] #used to sign session cookies
@@ -38,7 +38,7 @@ github = oauth.remote_app(
 url = os.environ["MONGO_CONNECTION_STRING"]
 client = pymongo.MongoClient(url)
 db = client[os.environ["MONGO_DBNAME"]]
-collection = db['posts'] #TODO: put the name of the collection here
+collection = db['score'] #TODO: put the name of the collection here
 
 # Send a ping to confirm a successful connection
 try:
@@ -100,7 +100,16 @@ def renderPage1():
 
 @app.route('/page2')
 def renderPage2():
+    if 'user_data' in session:
+        print("anything")
+        for doc in collection.find({"username":str(session['user_data']['login'])}):
+            print(doc)
+            return render_template('page2.html', win=doc["stats"])
+    else:
+        followers = 'no'; #needs fixing
+    
     return render_template('page2.html')
+    
 
 #the tokengetter is automatically called to check who is logged in.
 @github.tokengetter

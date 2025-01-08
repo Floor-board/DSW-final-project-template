@@ -8,7 +8,7 @@
 
   <h1>This is the stats Page</h1>
 
-  <p>When login you can see your stats: win, loses, ties.</p>
+  <p>When login you can see your stats: wins, loses, ties.</p>
   {% if logged_in %}
 <table>
   <tr>
@@ -17,9 +17,9 @@
     <th>Ties</th>
   </tr>
   <tr>
-    <td>Place Holder</td>
-    <td>Place Holder</td>
-    <td>Place Holder</td>
+    <td>{{win}}</td>
+    <td>{{loss}}</td>
+    <td>{{tie}}</td>
 </table>
   {% else %}
   <p>login to see your stats</p>
