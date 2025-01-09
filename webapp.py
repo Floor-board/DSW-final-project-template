@@ -100,16 +100,24 @@ def renderPage1():
 
 @app.route('/page2')
 def renderPage2():
+    #if 'user_data' in session:
+        #print("anything")
+        #for doc in collection.find({"username":str(session['user_data']['login'])}):
+            #print(doc)
+            #return render_template('page2.html', win=doc["stats"])
+    #else:
+        #followers = 'no'; #needs fixing
+    
+    #return render_template('page2.html')
+    
     if 'user_data' in session:
-        print("anything")
         for doc in collection.find({"username":str(session['user_data']['login'])}):
-            print(doc)
-            return render_template('page2.html', win=doc["stats"])
+            if doc["stats"]=="win":
+                return render_template('page2.html',win=doc["wins"],loss=doc["loss"],tie=doc["ties"])
+            else:
+                return render_template('page2.html')
     else:
-        followers = 'no'; #needs fixing
-    
-    return render_template('page2.html')
-    
+        return render_template('page2.html')
 
 #the tokengetter is automatically called to check who is logged in.
 @github.tokengetter
