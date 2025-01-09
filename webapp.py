@@ -105,28 +105,17 @@ def renderPage2():
 
 @app.route('/Game')
 def renderGame():
+    print(session)
     deck = pydealer.Deck()
     MyDeck = deck.shuffle()
-    if session['game_started'] == "No": 
-        session["Card1"] = deck.deal(1)
-        session["Card2"] = deck.deal(1)
-        session["Card3"] = deck.deal(1)
-        session["Card4"] = deck.deal(1)
-        session["Card5"] = deck.deal(1)
-        session["game_started"] = "Yes"
-        Card1 = session["Card1"]
-        Card2 = session["Card2"]
-        Card3 = session["Card3"]
-        Card4 = session["Card4"]
-        Card5 = session["Card5"]
-    else:
-        Card1 = session["Card1"]
-        Card2 = session["Card2"]
-        Card3 = session["Card3"]
-        Card4 = session["Card4"]
-        Card5 = session["Card5"]
-    return render_template('Game.html', deck=MyDeck, Card1 = Card1, Card2 = Card2, 
-    Card3 = Card3, Card4 = Card4, Card5 = Card5)
+     
+    Card1 = deck.deal(1)
+    Card2 = deck.deal(1)
+    Card3 = deck.deal(1)
+    Card4 = deck.deal(1)
+    Card5 = deck.deal(1)
+    
+    return render_template('Game.html', deck=MyDeck, Card1 = Card1, Card2 = Card2, Card3 = Card3, Card4 = Card4, Card5 = Card5)
 
 #the tokengetter is automatically called to check who is logged in.
 @github.tokengetter
