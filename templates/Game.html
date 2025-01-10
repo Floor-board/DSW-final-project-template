@@ -1,8 +1,9 @@
+
 {% extends "layout.html" %}
 
-{% set active_page = "page2" %}
+{% set active_page = "page1" %}
 
-{% block title %}page2{% endblock %}
+{% block title %}Game{% endblock %}
 
 {% block content %}
 
@@ -10,13 +11,19 @@
 <p>Hand, click one of the cards to play the card</p>
 
 <form action="/Game">
-<input type="submit" value="{{Card1}}">
+<input name="Card1 Played" type="submit" value="{{Card1}}">
 </form>
-
-<button type="button" class="btn btn-dark">{{Card1}}</button>
-<button type="button" class="btn btn-danger">{{Card2}}</button>
-<button type="button" class="btn btn-dark">{{Card3}}</button>
-<button type="button" class="btn btn-danger">{{Card4}}</button>
-<button type="button" class="btn btn-dark">{{Card5}}</button>
+<form action="/Game">
+<input name="Card2 Played" type="submit" value="{{Card2}}">
+</form>
+<form action="/Game">
+<input name="Card3 Played" type="submit" value="{{Card3}}">
+</form>
+<form action="/Game">
+<input name="Card4 Played" type="submit" value="{{Card4}}">
+</form>
+<form action="/Game">
+<input name="Card5 Played" type="submit" value="{{Card5}}">
+</form>
 
 {% endblock %}

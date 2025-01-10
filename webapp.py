@@ -56,6 +56,7 @@ def inject_logged_in():
 
 @app.route('/')
 def home():
+    session["game_started"] = "No"
     return render_template('home.html')
 
 #redirect to GitHub's OAuth page and confirm callback URL
@@ -109,6 +110,7 @@ def renderPage2():
         #followers = 'no'; #needs fixing
     
     #return render_template('page2.html')
+    #old code, kept it just in case if I'll ever need it
     
     if 'user_data' in session:
         for doc in collection.find({"username":str(session['user_data']['login'])}):
@@ -119,11 +121,32 @@ def renderPage2():
     else:
         return render_template('page2.html')
 
+@app.route('/Game')
+def renderGame():
+    print(session)
+    deck = pydealer.Deck()
+    MyDeck = deck.shuffle()
+     
+    Card1 = deck.deal(1)
+    Card2 = deck.deal(1)
+    Card3 = deck.deal(1)
+    Card4 = deck.deal(1)
+    Card5 = deck.deal(1)
+    
+    print(random.randrange(1,13))
+    
+    return render_template('Game.html', deck=MyDeck, Card1 = Card1, Card2 = Card2, Card3 = Card3, Card4 = Card4, Card5 = Card5)
+
+
 #the tokengetter is automatically called to check who is logged in.
 @github.tokengetter
 def get_github_oauth_token():
     return session['github_token']
 
+@app.route('/page1', methods=["GET"])
+def start_button():
+    start = request.form.get('submit')
+    return render_template('Game.html')
 
 
 if __name__ == '__main__':
