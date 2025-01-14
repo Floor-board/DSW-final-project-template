@@ -123,17 +123,44 @@ def renderPage2():
 
 @app.route('/Game')
 def renderGame():
+    card_values = { 'Ace': 14, 'King': 13, 'Queen': 12, 'Jack': 11, '10': 10, '9': 9, '8': 8, '7': 7, '6': 6, '5': 5, '4': 4, '3': 3, '2': 2 }
     print(session)
     deck = pydealer.Deck()
     MyDeck = deck.shuffle()
-     
+    PointsAI = 0
+    Player = 0
+    
     Card1 = deck.deal(1)
     Card2 = deck.deal(1)
     Card3 = deck.deal(1)
     Card4 = deck.deal(1)
     Card5 = deck.deal(1)
+    player1_won = pydealer.stack()
+    player2_won = pydealer.stack()
+
+    round_count = 0
+    max_rounds = 20
     
-    print(random.randrange(1,13))
+    if numchose > card1:
+        PointsAI + 1
+    elif numchose > card2:
+        PointsAI + 1
+    elif numchose > card3:
+        PointsAI + 1
+    elif numchose > card4:
+        PointsAI + 1
+    elif numchose > card5:
+        PointsAI + 1
+    elif numchose < card1:
+        Player + 1
+    elif numchose < card2:
+        Player + 1
+    elif numchose < card3:
+        Player + 1
+    elif numchose < card4:
+        Player + 1
+    elif numchose < card5:
+        Player + 1
     
     return render_template('Game.html', deck=MyDeck, Card1 = Card1, Card2 = Card2, Card3 = Card3, Card4 = Card4, Card5 = Card5)
 
