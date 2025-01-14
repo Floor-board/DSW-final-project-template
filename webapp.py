@@ -138,29 +138,32 @@ def renderGame():
     player1_won = pydealer.stack()
     player2_won = pydealer.stack()
 
+    #https://www.perplexity.ai/search/using-pydealer-is-it-possible-EIUXGhKnQsGknlqq.hkxdA
+    #this is what we use for the rounds and comparing cards
     round_count = 0
     max_rounds = 20
     
-    if numchose > card1:
-        PointsAI + 1
-    elif numchose > card2:
-        PointsAI + 1
-    elif numchose > card3:
-        PointsAI + 1
-    elif numchose > card4:
-        PointsAI + 1
-    elif numchose > card5:
-        PointsAI + 1
-    elif numchose < card1:
-        Player + 1
-    elif numchose < card2:
-        Player + 1
-    elif numchose < card3:
-        Player + 1
-    elif numchose < card4:
-        Player + 1
-    elif numchose < card5:
-        Player + 1
+    while round_count < max_rounds:
+        round_count += 1
+    
+    if len(player1_hand) > 0 and len(player2_hand) > 0:
+        war_card1 = player1_hand.deal(1)[0]
+        war_card2 = player2_hand.deal(1)[0]
+        war_pile.extend([war_card1, war_card2])
+        print(f"War cards: Player 1 - {war_card1}, Player 2 - {war_card2}")
+    if get_card_value(war_card1) > get_card_value(war_card2):
+        player1_won.add(war_pile)
+        print("Player 1 wins the war")
+    elif player2_won.add(war_pile):
+        print("Player 2 wins the war")
+    elif len(player1_hand) > 0:
+        player1_won.add(war_pile)
+        print("Player 1 wins the war (Player 2 ran out of cards)")
+    else:
+        player2_won.add(war_pile)
+        print("Player 2 wins the war (Player 1 ran out of cards)")
+    print(f"Player 1 has {len(player1_hand) + len(player1_won)} cards, Player 2 has {len(player2_hand) + len(player2_won)} cards")
+
     
     return render_template('Game.html', deck=MyDeck, Card1 = Card1, Card2 = Card2, Card3 = Card3, Card4 = Card4, Card5 = Card5)
 
