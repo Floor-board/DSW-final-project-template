@@ -135,6 +135,7 @@ def renderGame():
     Card3 = deck.deal(1)
     Card4 = deck.deal(1)
     Card5 = deck.deal(1)
+    print(pydealer)
     player1_won = pydealer.stack()
     player2_won = pydealer.stack()
 
