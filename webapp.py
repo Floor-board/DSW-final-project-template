@@ -141,7 +141,7 @@ def renderGame():
     
     PCard1, PCard2, PCard3, PCard4, PCard5 = PlayerDeck_list
     #PCard2 = Card2, PCard3 = Card3, PCard4 = Card4, PCard5 = Card5
-    return render_template('Game.html', Card1 = PCard1, Card2 = PCard2, Card3 = PCard3, Card4 = PCard4, Card5 = PCard5)
+    return render_template('Game.html', Card1 = PCard1, Card2 = PCard2, Card3 = PCard3, Card4 = PCard4, Card5 = PCard5, Enemy_Deck=EnemyDeck_list)
     
     """print(session)
     deck = pydealer.Deck()
@@ -186,9 +186,10 @@ def renderGame():
     , deck=MyDeck, Card1 = Card1, Card2 = Card2, Card3 = Card3, Card4 = Card4, Card5 = Card5
 """
     
-@app.route('/GamePlay')
+@app.route('/GamePlay', methods = ["POST","GET"])
 def renderGamePlay():
     PlayerCard = request.form["CardPlayed"]
+    #test = request.form
     
     #PlayerDeck
     PlayerDeck_list=[]
@@ -206,8 +207,8 @@ def renderGamePlay():
     
     print("PLAY 1")
     
-    print(PlayerCard)
-    return render_template('Game.html', Card1 = PCard1, Card2 = PCard2, Card3 = PCard3, Card4 = PCard4, Card5 = PCard5)
+    #print(PlayerCard)
+    return render_template('Game.html', Card1 = PCard1, Card2 = PCard2, Card3 = PCard3, Card4 = PCard4, Card5 = PCard5, Enemy_Deck=EnemyDeck_list)
     
     
 
