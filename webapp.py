@@ -123,8 +123,27 @@ def renderPage2():
 
 @app.route('/Game')
 def renderGame():
-    card_values = { 'Ace': 14, 'King': 13, 'Queen': 12, 'Jack': 11, '10': 10, '9': 9, '8': 8, '7': 7, '6': 6, '5': 5, '4': 4, '3': 3, '2': 2 }
-    print(session)
+    #card_values = { 'Ace': 14, 'King': 13, 'Queen': 12, 'Jack': 11, '10': 10, '9': 9, '8': 8, '7': 7, '6': 6, '5': 5, '4': 4, '3': 3, '2': 2 }
+    
+    #PlayerDeck
+    PlayerDeck_list=[]
+    cards=5
+    for i in range(cards):
+        PlayerDeck_list.append(random.randint(1,13))
+    print(PlayerDeck_list)
+    
+    #AIDeck
+    EnemyDeck_list=[]
+    cards=5
+    for i in range(cards):
+        EnemyDeck_list.append(random.randint(1,13))
+    print(EnemyDeck_list)
+    
+    PCard1, PCard2, PCard3, PCard4, PCard5 = PlayerDeck_list
+    #PCard2 = Card2, PCard3 = Card3, PCard4 = Card4, PCard5 = Card5
+    return render_template('Game.html', Card1 = PCard1, Card2 = PCard2, Card3 = PCard3, Card4 = PCard4, Card5 = PCard5)
+    
+    """print(session)
     deck = pydealer.Deck()
     MyDeck = deck.shuffle()
     PointsAI = 0
@@ -164,9 +183,33 @@ def renderGame():
         player2_won.add(war_pile)
         print("Player 2 wins the war (Player 1 ran out of cards)")
     print(f"Player 1 has {len(player1_hand) + len(player1_won)} cards, Player 2 has {len(player2_hand) + len(player2_won)} cards")
-
+    , deck=MyDeck, Card1 = Card1, Card2 = Card2, Card3 = Card3, Card4 = Card4, Card5 = Card5
+"""
     
-    return render_template('Game.html', deck=MyDeck, Card1 = Card1, Card2 = Card2, Card3 = Card3, Card4 = Card4, Card5 = Card5)
+@app.route('/GamePlay')
+def renderGamePlay():
+    PlayerCard = request.form["CardPlayed"]
+    
+    #PlayerDeck
+    PlayerDeck_list=[]
+    cards=5
+    for i in range(cards):
+        PlayerDeck_list.append(random.randint(1,13))
+    
+    #AIDeck
+    EnemyDeck_list=[]
+    cards=5
+    for i in range(cards):
+        EnemyDeck_list.append(random.randint(1,13))
+    
+    PCard1, PCard2, PCard3, PCard4, PCard5 = PlayerDeck_list
+    
+    print("PLAY 1")
+    
+    print(PlayerCard)
+    return render_template('Game.html', Card1 = PCard1, Card2 = PCard2, Card3 = PCard3, Card4 = PCard4, Card5 = PCard5)
+    
+    
 
 
 #the tokengetter is automatically called to check who is logged in.
