@@ -9,49 +9,46 @@
 
 
 <div class="container">
-
-	<h1 class="hidden">
-		{{ Enemy_Deck }}
-	<h1>
-
-  
-  
+    
+	<h1> {{ game_state }} </h1>
+    
   <div class="row">
     <h1>War!!!</h1>
 	<p>Hand, click one of the cards to play the card</p>
+	  
   </div>
   <div class="row align-items-start">
     <div class="col">
       <form action="/GamePlay" method="post">
-		<div class="card">
+		<div class="card" style="height: 18rem;">
 			<input class="card-body" name="CardPlayed" type="submit" value="{{Card1}}">
 		</div>
 	  </form>
     </div>
     <div class="col">
      <form action="/GamePlay" method="post">
-		<div class="card">
+		<div class="card" style="height: 18rem;">
 			<input class="card-body" name="CardPlayed" type="submit" value="{{Card2}}">
 		</div>
 	  </form>
     </div>
     <div class="col">
       <form action="/GamePlay" method="post">
-		<div class="card">
+		<div class="card" style="height: 18rem;">
 			<input class="card-body" name="CardPlayed" type="submit" value="{{Card3}}">
 		</div>
 	  </form>
     </div>
 	<div class="col">
       <form action="/GamePlay" method="post">
-		<div class="card">
+		<div class="card" style="height: 18rem;">
 			<input class="card-body" name="CardPlayed" type="submit" value="{{Card4}}">
 		</div>
 	  </form>
     </div>
 	<div class="col">
       <form action="/GamePlay" method="post">
-		<div class="card">
+		<div class="card" style="height: 18rem;">
 			<input class="card-body" name="CardPlayed" type="submit" value="{{Card5}}">
 		</div>
 	  </form>

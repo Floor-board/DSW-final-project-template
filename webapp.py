@@ -21,6 +21,10 @@ app.secret_key = os.environ['SECRET_KEY'] #used to sign session cookies
 oauth = OAuth(app)
 oauth.init_app(app) #initialize the app to be able to make requests for user information
 
+EnemyCard = 0
+GameState = "Null"
+
+
 #Set up GitHub as OAuth provider
 github = oauth.remote_app(
     'github',
@@ -35,10 +39,10 @@ github = oauth.remote_app(
 )
 
 #Connect to database
-url = os.environ["MONGO_CONNECTION_STRING"]
-client = pymongo.MongoClient(url)
-db = client[os.environ["MONGO_DBNAME"]]
-collection = db['score'] #TODO: put the name of the collection here
+#url = os.environ["MONGO_CONNECTION_STRING"]
+#client = pymongo.MongoClient(url)
+#db = client[os.environ["MONGO_DBNAME"]]
+#collection = db['score'] #TODO: put the name of the collection here
 
 # Send a ping to confirm a successful connection
 try:
@@ -123,6 +127,7 @@ def renderPage2():
 
 @app.route('/Game')
 def renderGame():
+    global EnemyCard
     #card_values = { 'Ace': 14, 'King': 13, 'Queen': 12, 'Jack': 11, '10': 10, '9': 9, '8': 8, '7': 7, '6': 6, '5': 5, '4': 4, '3': 3, '2': 2 }
     
     #PlayerDeck
@@ -133,63 +138,28 @@ def renderGame():
     print(PlayerDeck_list)
     
     #AIDeck
-    EnemyDeck_list=[]
-    cards=5
+    cards=1
     for i in range(cards):
-        EnemyDeck_list.append(random.randint(1,13))
-    print(EnemyDeck_list)
+        EnemyCard = (random.randint(1,13))
+    
+    print("SelectedEnemyCard= ", EnemyCard)
     
     PCard1, PCard2, PCard3, PCard4, PCard5 = PlayerDeck_list
     #PCard2 = Card2, PCard3 = Card3, PCard4 = Card4, PCard5 = Card5
-    return render_template('Game.html', Card1 = PCard1, Card2 = PCard2, Card3 = PCard3, Card4 = PCard4, Card5 = PCard5, Enemy_Deck=EnemyDeck_list)
+    return render_template('Game.html', Card1 = PCard1, Card2 = PCard2, Card3 = PCard3, Card4 = PCard4, Card5 = PCard5,  game_state=GameState)
     
-    """print(session)
-    deck = pydealer.Deck()
-    MyDeck = deck.shuffle()
-    PointsAI = 0
-    Player = 0
     
-    Card1 = deck.deal(1)
-    Card2 = deck.deal(1)
-    Card3 = deck.deal(1)
-    Card4 = deck.deal(1)
-    Card5 = deck.deal(1)
-    print(pydealer)
-    player1_won = pydealer.stack()
-    player2_won = pydealer.stack()
-
-    #https://www.perplexity.ai/search/using-pydealer-is-it-possible-EIUXGhKnQsGknlqq.hkxdA
-    #this is what we use for the rounds and comparing cards
-    round_count = 0
-    max_rounds = 20
-    
-    while round_count < max_rounds:
-        round_count += 1
-    
-    if len(player1_hand) > 0 and len(player2_hand) > 0:
-        war_card1 = player1_hand.deal(1)[0]
-        war_card2 = player2_hand.deal(1)[0]
-        war_pile.extend([war_card1, war_card2])
-        print(f"War cards: Player 1 - {war_card1}, Player 2 - {war_card2}")
-    if get_card_value(war_card1) > get_card_value(war_card2):
-        player1_won.add(war_pile)
-        print("Player 1 wins the war")
-    elif player2_won.add(war_pile):
-        print("Player 2 wins the war")
-    elif len(player1_hand) > 0:
-        player1_won.add(war_pile)
-        print("Player 1 wins the war (Player 2 ran out of cards)")
-    else:
-        player2_won.add(war_pile)
-        print("Player 2 wins the war (Player 1 ran out of cards)")
-    print(f"Player 1 has {len(player1_hand) + len(player1_won)} cards, Player 2 has {len(player2_hand) + len(player2_won)} cards")
-    , deck=MyDeck, Card1 = Card1, Card2 = Card2, Card3 = Card3, Card4 = Card4, Card5 = Card5
-"""
     
 @app.route('/GamePlay', methods = ["POST","GET"])
 def renderGamePlay():
-    PlayerCard = request.form["CardPlayed"]
-    #test = request.form
+    PlayerCard = int(request.form["CardPlayed"])
+    print("PLAYERCARD= ",PlayerCard)
+    global EnemyCard
+    global GameState
+
+    GameState = CalculateWinner(PlayerCard, EnemyCard)
+    
+    #card_values = { 'Ace': 14, 'King': 13, 'Queen': 12, 'Jack': 11, '10': 10, '9': 9, '8': 8, '7': 7, '6': 6, '5': 5, '4': 4, '3': 3, '2': 2 }
     
     #PlayerDeck
     PlayerDeck_list=[]
@@ -198,19 +168,38 @@ def renderGamePlay():
         PlayerDeck_list.append(random.randint(1,13))
     
     #AIDeck
-    EnemyDeck_list=[]
-    cards=5
+    cards=1
     for i in range(cards):
-        EnemyDeck_list.append(random.randint(1,13))
+        EnemyCard = (random.randint(1,13))
     
-    PCard1, PCard2, PCard3, PCard4, PCard5 = PlayerDeck_list
+    print("ENEMYCARD NEXT SELECT= ", EnemyCard)
     
     print("PLAY 1")
     
+    PCard1, PCard2, PCard3, PCard4, PCard5 = PlayerDeck_list
+
     #print(PlayerCard)
-    return render_template('Game.html', Card1 = PCard1, Card2 = PCard2, Card3 = PCard3, Card4 = PCard4, Card5 = PCard5, Enemy_Deck=EnemyDeck_list)
+    return render_template('Game.html', Card1 = PCard1, Card2 = PCard2, Card3 = PCard3, Card4 = PCard4, Card5 = PCard5, game_state=GameState)
     
-    
+def CalculateWinner(PlayerCard, EnemyCard):
+    Game_StateCAL = "Null"
+    DEBUGSCORE = PlayerCard - EnemyCard
+    print(DEBUGSCORE)
+    print("PlayerCard PLAY1= ", PlayerCard)
+    print("EnemyCard PLAY1=", EnemyCard)
+    if PlayerCard == EnemyCard:
+        Game_StateCAL="DRAW"
+    else:
+        if PlayerCard > EnemyCard:
+            Game_StateCAL="WIN"
+          
+        else:
+            Game_StateCAL="LOSE"
+
+    return Game_StateCAL
+
+
+
 
 
 #the tokengetter is automatically called to check who is logged in.
