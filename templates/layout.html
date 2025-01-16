@@ -20,16 +20,29 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+	
+	<link rel="script" href="{{ url_for('static', filename='jQuery.js') }}">
     <title>{% block title %}{% endblock %} - My Webpage</title>
 
 
   </head>
   <body>
-    {% include 'navbar.html' %}
+      <div class="blob-outer-container">
+          <div class="blob-inner-container">
+              <div class="blob"></div>
+          </div>
+      </div>
 
-    <div id="content">
-      {% block content %}{% endblock %}
-    </div>
+      <div class="home-page">
+          <div class="content">
+              {% include 'navbar.html' %}
+
+              <div id="content">
+                  {% block content %}{% endblock %}
+              </div>
+          </div>
+      </div>
+
 
   </body>
 </html>

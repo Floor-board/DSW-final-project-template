@@ -1,3 +1,4 @@
+
 {% extends "layout.html" %}
 
 {% set active_page = "page1" %}
@@ -6,17 +7,53 @@
 
 {% block content %}
 
-<h1>War!!!</h1>
-<p>Hand, click one of the cards to play the card</p>
 
-<form action="/Game">
-<input name="Card1 Played" type="submit" value="{{Card1}}">
-</form>
-
-<button>{{Card1}}</button>
-<button>{{Card2}}</button>
-<button>{{Card3}}</button>
-<button>{{Card4}}</button>
-<button>{{Card5}}</button>
+<div class="container">
+    
+	<h1> {{ game_state }} </h1>
+    
+  <div class="row">
+    <h1>War!!!</h1>
+	<p>Hand, click one of the cards to play the card</p>
+	  
+  </div>
+  <div class="row align-items-start">
+    <div class="col">
+      <form action="/GamePlay" method="post">
+		<div class="card" style="height: 18rem;">
+			<input class="card-body" name="CardPlayed" type="submit" value="{{Card1}}">
+		</div>
+	  </form>
+    </div>
+    <div class="col">
+     <form action="/GamePlay" method="post">
+		<div class="card" style="height: 18rem;">
+			<input class="card-body" name="CardPlayed" type="submit" value="{{Card2}}">
+		</div>
+	  </form>
+    </div>
+    <div class="col">
+      <form action="/GamePlay" method="post">
+		<div class="card" style="height: 18rem;">
+			<input class="card-body" name="CardPlayed" type="submit" value="{{Card3}}">
+		</div>
+	  </form>
+    </div>
+	<div class="col">
+      <form action="/GamePlay" method="post">
+		<div class="card" style="height: 18rem;">
+			<input class="card-body" name="CardPlayed" type="submit" value="{{Card4}}">
+		</div>
+	  </form>
+    </div>
+	<div class="col">
+      <form action="/GamePlay" method="post">
+		<div class="card" style="height: 18rem;">
+			<input class="card-body" name="CardPlayed" type="submit" value="{{Card5}}">
+		</div>
+	  </form>
+    </div>
+  </div>
+</div>
 
 {% endblock %}

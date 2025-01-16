@@ -21,6 +21,10 @@ app.secret_key = os.environ['SECRET_KEY'] #used to sign session cookies
 oauth = OAuth(app)
 oauth.init_app(app) #initialize the app to be able to make requests for user information
 
+EnemyCard = 0
+GameState = "Null"
+
+
 #Set up GitHub as OAuth provider
 github = oauth.remote_app(
     'github',
@@ -35,10 +39,10 @@ github = oauth.remote_app(
 )
 
 #Connect to database
-url = os.environ["MONGO_CONNECTION_STRING"]
-client = pymongo.MongoClient(url)
-db = client[os.environ["MONGO_DBNAME"]]
-collection = db['posts'] #TODO: put the name of the collection here
+#url = os.environ["MONGO_CONNECTION_STRING"]
+#client = pymongo.MongoClient(url)
+#db = client[os.environ["MONGO_DBNAME"]]
+#collection = db['score'] #TODO: put the name of the collection here
 
 # Send a ping to confirm a successful connection
 try:
@@ -48,7 +52,7 @@ except Exception as e:
     print(e)
 
 #context processors run before templates are rendered and add variable(s) to the template's context
-#context processors must return a dictionary 
+#context processors must return a dictionary
 #this context processor adds the variable logged_in to the conext for all templates
 @app.context_processor
 def inject_logged_in():
@@ -61,7 +65,7 @@ def home():
 
 #redirect to GitHub's OAuth page and confirm callback URL
 @app.route('/login')
-def login():   
+def login():  
     return github.authorize(callback=url_for('authorized', _external=True, _scheme='http')) #callback URL must match the pre-configured callback URL
 
 @app.route('/logout')
@@ -101,21 +105,111 @@ def renderPage1():
 
 @app.route('/page2')
 def renderPage2():
-    return render_template('page2.html')
+    #if 'user_data' in session:
+        #print("anything")
+        #for doc in collection.find({"username":str(session['user_data']['login'])}):
+            #print(doc)
+            #return render_template('page2.html', win=doc["stats"])
+    #else:
+        #followers = 'no'; #needs fixing
+    
+    #return render_template('page2.html')
+    #old code, kept it just in case if I'll ever need it
+    
+    if 'user_data' in session:
+        for doc in collection.find({"username":str(session['user_data']['login'])}):
+            if doc["stats"]=="win":
+                return render_template('page2.html',win=doc["wins"],loss=doc["loss"],tie=doc["ties"])
+            else:
+                return render_template('page2.html')
+    else:
+        return render_template('page2.html')
 
 @app.route('/Game')
 def renderGame():
-    print(session)
-    deck = pydealer.Deck()
-    MyDeck = deck.shuffle()
-     
-    Card1 = deck.deal(1)
-    Card2 = deck.deal(1)
-    Card3 = deck.deal(1)
-    Card4 = deck.deal(1)
-    Card5 = deck.deal(1)
+    global EnemyCard
+    #card_values = { 'Ace': 14, 'King': 13, 'Queen': 12, 'Jack': 11, '10': 10, '9': 9, '8': 8, '7': 7, '6': 6, '5': 5, '4': 4, '3': 3, '2': 2 }
     
-    return render_template('Game.html', deck=MyDeck, Card1 = Card1, Card2 = Card2, Card3 = Card3, Card4 = Card4, Card5 = Card5)
+    #PlayerDeck
+    PlayerDeck_list=[]
+    cards=5
+    for i in range(cards):
+        PlayerDeck_list.append(random.randint(1,13))
+    print(PlayerDeck_list)
+    
+    #AIDeck
+    cards=1
+    for i in range(cards):
+        EnemyCard = (random.randint(1,13))
+    
+    print("SelectedEnemyCard= ", EnemyCard)
+    
+    PCard1, PCard2, PCard3, PCard4, PCard5 = PlayerDeck_list
+    #PCard2 = Card2, PCard3 = Card3, PCard4 = Card4, PCard5 = Card5
+    return render_template('Game.html', Card1 = PCard1, Card2 = PCard2, Card3 = PCard3, Card4 = PCard4, Card5 = PCard5,  game_state=GameState)
+    
+    
+    
+@app.route('/GamePlay', methods = ["POST","GET"])
+def renderGamePlay():
+    PlayerCard = int(request.form["CardPlayed"])
+    print("PLAYERCARD= ",PlayerCard)
+    global EnemyCard
+    global GameState
+
+    GameState = CalculateWinner(PlayerCard, EnemyCard)
+    
+    #card_values = { 'Ace': 14, 'King': 13, 'Queen': 12, 'Jack': 11, '10': 10, '9': 9, '8': 8, '7': 7, '6': 6, '5': 5, '4': 4, '3': 3, '2': 2 }
+    
+    #PlayerDeck
+    PlayerDeck_list=[]
+    cards=5
+    for i in range(cards):
+        PlayerDeck_list.append(random.randint(1,13))
+    
+    #AIDeck
+    cards=1
+    for i in range(cards):
+        EnemyCard = (random.randint(1,13))
+    
+    print("ENEMYCARD NEXT SELECT= ", EnemyCard)
+    
+    print("PLAY 1")
+    
+    PCard1, PCard2, PCard3, PCard4, PCard5 = PlayerDeck_list
+
+    #print(PlayerCard)
+    return render_template('Game.html', Card1 = PCard1, Card2 = PCard2, Card3 = PCard3, Card4 = PCard4, Card5 = PCard5, game_state=GameState)
+    
+def CalculateWinner(PlayerCard, EnemyCard):
+    Game_StateCAL = "Null"
+    DEBUGSCORE = PlayerCard - EnemyCard
+    print(DEBUGSCORE)
+    print("PlayerCard PLAY1= ", PlayerCard)
+    print("EnemyCard PLAY1=", EnemyCard)
+    PlayerPoints = 0
+    BotPoints = 0
+    GameOver = False
+    if PlayerCard == EnemyCard:
+        Game_StateCAL="DRAW"
+        PlayerPoints +1
+        BotPoints +1
+    else:
+        if PlayerPoints < 20 and BotPoints < 20:
+            Game_StateCAL = "Game over!"
+            GameOver = True
+        elif PlayerCard > EnemyCard:
+            Game_StateCAL="WIN"
+            PlayerPoints +1
+        elif PlayerCard < EnemyCard:
+            Game_StateCAL="LOSE"
+            BotPoints +1
+    if GameOver == True:
+        print("Game over!")
+        return render_template('Game.html')
+    return Game_StateCAL
+
+
 
 #the tokengetter is automatically called to check who is logged in.
 @github.tokengetter
@@ -126,6 +220,7 @@ def get_github_oauth_token():
 def start_button():
     start = request.form.get('submit')
     return render_template('Game.html')
+
 
 if __name__ == '__main__':
     app.run()
