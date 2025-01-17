@@ -24,7 +24,6 @@ oauth.init_app(app) #initialize the app to be able to make requests for user inf
 EnemyCard = 0
 GameState = "Null"
 
-
 #Set up GitHub as OAuth provider
 github = oauth.remote_app(
     'github',
@@ -39,10 +38,10 @@ github = oauth.remote_app(
 )
 
 #Connect to database
-#url = os.environ["MONGO_CONNECTION_STRING"]
-#client = pymongo.MongoClient(url)
-#db = client[os.environ["MONGO_DBNAME"]]
-#collection = db['score'] #TODO: put the name of the collection here
+url = os.environ["MONGO_CONNECTION_STRING"]
+client = pymongo.MongoClient(url)
+db = client[os.environ["MONGO_DBNAME"]]
+collection = db['score'] #TODO: put the name of the collection here
 
 # Send a ping to confirm a successful connection
 try:
@@ -112,10 +111,10 @@ def renderPage2():
             #return render_template('page2.html', win=doc["stats"])
     #else:
         #followers = 'no'; #needs fixing
-    
+   
     #return render_template('page2.html')
     #old code, kept it just in case if I'll ever need it
-    
+   
     if 'user_data' in session:
         for doc in collection.find({"username":str(session['user_data']['login'])}):
             if doc["stats"]=="win":
@@ -129,27 +128,30 @@ def renderPage2():
 def renderGame():
     global EnemyCard
     #card_values = { 'Ace': 14, 'King': 13, 'Queen': 12, 'Jack': 11, '10': 10, '9': 9, '8': 8, '7': 7, '6': 6, '5': 5, '4': 4, '3': 3, '2': 2 }
-    
+   
+    session['PlayerPoints'] = 0
+    session['BotPoints'] = 0
+   
     #PlayerDeck
     PlayerDeck_list=[]
     cards=5
     for i in range(cards):
         PlayerDeck_list.append(random.randint(1,13))
     print(PlayerDeck_list)
-    
+   
     #AIDeck
     cards=1
     for i in range(cards):
         EnemyCard = (random.randint(1,13))
-    
+   
     print("SelectedEnemyCard= ", EnemyCard)
-    
+   
     PCard1, PCard2, PCard3, PCard4, PCard5 = PlayerDeck_list
     #PCard2 = Card2, PCard3 = Card3, PCard4 = Card4, PCard5 = Card5
     return render_template('Game.html', Card1 = PCard1, Card2 = PCard2, Card3 = PCard3, Card4 = PCard4, Card5 = PCard5,  game_state=GameState)
-    
-    
-    
+   
+   
+   
 @app.route('/GamePlay', methods = ["POST","GET"])
 def renderGamePlay():
     PlayerCard = int(request.form["CardPlayed"])
@@ -158,47 +160,57 @@ def renderGamePlay():
     global GameState
 
     GameState = CalculateWinner(PlayerCard, EnemyCard)
-    
+    if GameState == 'Game over!':
+        return render_template('page1.html')
+   
     #card_values = { 'Ace': 14, 'King': 13, 'Queen': 12, 'Jack': 11, '10': 10, '9': 9, '8': 8, '7': 7, '6': 6, '5': 5, '4': 4, '3': 3, '2': 2 }
-    
+   
     #PlayerDeck
     PlayerDeck_list=[]
     cards=5
     for i in range(cards):
         PlayerDeck_list.append(random.randint(1,13))
-    
+   
     #AIDeck
     cards=1
     for i in range(cards):
         EnemyCard = (random.randint(1,13))
-    
+   
     print("ENEMYCARD NEXT SELECT= ", EnemyCard)
-    
+   
     print("PLAY 1")
-    
+   
     PCard1, PCard2, PCard3, PCard4, PCard5 = PlayerDeck_list
 
     #print(PlayerCard)
     return render_template('Game.html', Card1 = PCard1, Card2 = PCard2, Card3 = PCard3, Card4 = PCard4, Card5 = PCard5, game_state=GameState)
-    
+   
 def CalculateWinner(PlayerCard, EnemyCard):
     Game_StateCAL = "Null"
     DEBUGSCORE = PlayerCard - EnemyCard
     print(DEBUGSCORE)
     print("PlayerCard PLAY1= ", PlayerCard)
     print("EnemyCard PLAY1=", EnemyCard)
+    GameOver = False
     if PlayerCard == EnemyCard:
         Game_StateCAL="DRAW"
+        session['PlayerPoints'] +=1
+        session['BotPoints'] +=1
     else:
-        if PlayerCard > EnemyCard:
+        if session['PlayerPoints'] > 20 or session['BotPoints'] > 20:
+            Game_StateCAL = "Game over!"
+            GameOver = True
+        elif PlayerCard > EnemyCard:
             Game_StateCAL="WIN"
-          
-        else:
+            session['PlayerPoints'] +=1
+        elif PlayerCard < EnemyCard:
             Game_StateCAL="LOSE"
-
+            session['BotPoints'] +=1
+    if GameOver == True:
+        session['PlayerPoints'] = 0
+        session['BotPoints'] = 0
+        print("Game over!")
     return Game_StateCAL
-
-
 
 
 
