@@ -59,8 +59,32 @@ def inject_logged_in():
 
 @app.route('/')
 def home():
+    if 'user_data' in session:
+       gitHubID = session['user_data']['login']
+       createAccount(gitHubID)
+       
     session["game_started"] = "No"
     return render_template('home.html')
+
+def createAccount(GithubName):
+        
+        if collection.find_one({"username":GithubName}):
+            Player = loadPlayerData(GithubName)
+            return render_template('home.html')
+        else:
+            doc = {"username": GithubName, "wins": 0, "loss": 0, "ties": 0, "stats": "win"}
+            collection.insert_one(doc)
+            PlayerData = doc
+            print("CREATED A CHARACTER!!!")
+            return(PlayerData)
+            return render_template('home.html')
+   
+    
+def loadPlayerData(gitHubID):
+    characterData = collection.find_one({"username": gitHubID})
+    return(characterData)
+    
+
 
 #redirect to GitHub's OAuth page and confirm callback URL
 @app.route('/login')
@@ -76,6 +100,7 @@ def logout():
 @app.route('/login/authorized')
 def authorized():
     resp = github.authorized_response()
+    global GithubName
     if resp is None:
         session.clear()
         flash('Access denied: reason=' + request.args['error'] + ' error=' + request.args['error_description'] + ' full=' + pprint.pformat(request.args), 'error')      
@@ -84,6 +109,7 @@ def authorized():
             session['github_token'] = (resp['access_token'], '') #save the token to prove that the user logged in
             session['user_data']=github.get('user').data
             message = 'You were successfully logged in as ' + session['user_data']['login'] + '.'
+            GithubName = session['user_data']['login']
         except Exception as inst:
             session.clear()
             print(inst)
@@ -96,6 +122,8 @@ def renderPage1():
     if 'user_data' in session:
         user_data_pprint = pprint.pformat(session['user_data'])#format the user data nicely
     else:
+        createUserData()
+        
         user_data_pprint = '';
     deck = pydealer.Deck()
     deck.shuffle()
