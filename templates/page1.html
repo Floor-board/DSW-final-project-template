@@ -5,9 +5,19 @@
 {% block title %}page1{% endblock %}
 
 {% block content %}
-  <h1>Game</h1>
-  <form action="/Game">
-  <input type="submit" value="Play!">
-  </form>
-  <p>{{hand}}</p>
-{% endblock %}
+
+<div class="container text-center p-5">
+    <div class="row  p-5">
+        <h1>Game</h1>
+    </div>
+    <div class="row">
+        <div class="col">
+            <form action="/Game">
+                <input type="submit" class="btn btn-success" value="Play!">
+            </form>
+        </div>
+    </div>
+</div>
+
+
+    {% endblock %}
