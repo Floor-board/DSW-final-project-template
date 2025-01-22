@@ -182,44 +182,56 @@ def renderGame():
    
 @app.route('/GamePlay', methods = ["POST","GET"])
 def renderGamePlay():
-    PlayerCard = int(request.form["CardPlayed"])
-    print("PLAYERCARD= ",PlayerCard)
-    global EnemyCard
-    global GameState
+    if 'user_data' in session:
+        gitHubID = session['user_data']['login']
+        PlayerCard = int(request.form["CardPlayed"])
+        print("PLAYERCARD= ",PlayerCard)
+        global EnemyCard
+        global GameState
 
-    GameState = CalculateWinner(PlayerCard, EnemyCard)
-    if GameState == 'Game over!':
-        return render_template('page1.html')
-   
-    #card_values = { 'Ace': 14, 'King': 13, 'Queen': 12, 'Jack': 11, '10': 10, '9': 9, '8': 8, '7': 7, '6': 6, '5': 5, '4': 4, '3': 3, '2': 2 }
-   
-    #PlayerDeck
-    PlayerDeck_list=[]
-    cards=5
-    for i in range(cards):
-        PlayerDeck_list.append(random.randint(1,13))
-   
-    #AIDeck
-    cards=1
-    for i in range(cards):
-        EnemyCard = (random.randint(1,13))
-   
-    print("ENEMYCARD NEXT SELECT= ", EnemyCard)
-   
-    print("PLAY 1")
-   
-    PCard1, PCard2, PCard3, PCard4, PCard5 = PlayerDeck_list
+        GameState = CalculateWinner(PlayerCard, EnemyCard, gitHubID)
+        if GameState == 'Game over!':
+            return render_template('page1.html')
+       
+        #card_values = { 'Ace': 14, 'King': 13, 'Queen': 12, 'Jack': 11, '10': 10, '9': 9, '8': 8, '7': 7, '6': 6, '5': 5, '4': 4, '3': 3, '2': 2 }
+       
+        #PlayerDeck
+        PlayerDeck_list=[]
+        cards=5
+        for i in range(cards):
+            PlayerDeck_list.append(random.randint(1,13))
+       
+        #AIDeck
+        cards=1
+        for i in range(cards):
+            EnemyCard = (random.randint(1,13))
+       
+        print("ENEMYCARD NEXT SELECT= ", EnemyCard)
+       
+        print("PLAY 1")
+       
+        PCard1, PCard2, PCard3, PCard4, PCard5 = PlayerDeck_list
 
-    #print(PlayerCard)
-    return render_template('Game.html', Card1 = PCard1, Card2 = PCard2, Card3 = PCard3, Card4 = PCard4, Card5 = PCard5, game_state=GameState)
+        #print(PlayerCard)
+        return render_template('Game.html', Card1 = PCard1, Card2 = PCard2, Card3 = PCard3, Card4 = PCard4, Card5 = PCard5, game_state=GameState)
    
-def CalculateWinner(PlayerCard, EnemyCard):
+def CalculateWinner(PlayerCard, EnemyCard, Username):
+    global GithubName
     Game_StateCAL = "Null"
     DEBUGSCORE = PlayerCard - EnemyCard
     print(DEBUGSCORE)
     print("PlayerCard PLAY1= ", PlayerCard)
     print("EnemyCard PLAY1=", EnemyCard)
     GameOver = False
+    wins = 0
+    loss = 0
+    for doc in collection.find({ "username": session["user_data"]["login"]}):
+        wins = doc["wins"]
+        loss = doc["loss"]
+        print(loss)
+    
+    session['PlayerWin'] = 0
+    session['PlayerLoss'] = 0
     if PlayerCard == EnemyCard:
         Game_StateCAL="DRAW"
         session['PlayerPoints'] +=1
@@ -234,13 +246,34 @@ def CalculateWinner(PlayerCard, EnemyCard):
         elif PlayerCard < EnemyCard:
             Game_StateCAL="LOSE"
             session['BotPoints'] +=1
-    if GameOver == True:
-        session['PlayerPoints'] = 0
-        session['BotPoints'] = 0
-        print("Game over!")
+        if GameOver == True:
+            session['PlayerPoints'] = 0
+            session['BotPoints'] = 0
+            print("Game over!")
+            if session['PlayerPoints'] == 20 and session['BotPoints'] < 20:
+                wins = wins + 1
+                print(wins)
+                query = {"username": session["user_data"]["login"]} 
+                changes = {'$set': {"wins":wins}}
+                collection.update_one(query, changes)
+
+                print("WINS " + str(wins))
+                updateScore(session["user_data"]["login"], "wins", wins)
+            else:
+                session['PlayerLoss'] = session['PlayerLoss'] + 1
+                print("LOSS " + str(loss))
+                loss = loss + 1
+                updateScore(session["user_data"]["login"], "loss", loss)
+            print(session['PlayerWin'], session['PlayerLoss'])
     return Game_StateCAL
 
+def updateScore(gitHubID, Key, Value):
+    query = collection.find_one({"username": gitHubID})
+    changes = {'$set': {Key:Value}}
+    collection.update_one(query, changes)
 
+    characterData = query
+    return(characterData)
 
 #the tokengetter is automatically called to check who is logged in.
 @github.tokengetter
