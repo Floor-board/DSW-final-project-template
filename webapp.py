@@ -89,7 +89,7 @@ def loadPlayerData(gitHubID):
 #redirect to GitHub's OAuth page and confirm callback URL
 @app.route('/login')
 def login():  
-    return github.authorize(callback=url_for('authorized', _external=True, _scheme='http')) #callback URL must match the pre-configured callback URL
+    return github.authorize(callback=url_for('authorized', _external=True, _scheme='https')) #callback URL must match the pre-configured callback URL
 
 @app.route('/logout')
 def logout():
@@ -228,7 +228,8 @@ def CalculateWinner(PlayerCard, EnemyCard, Username):
     for doc in collection.find({ "username": session["user_data"]["login"]}):
         wins = doc["wins"]
         loss = doc["loss"]
-        print(loss)
+        #print(loss)
+        #print(wins)
     
     session['PlayerWin'] = 0
     session['PlayerLoss'] = 0
@@ -247,10 +248,8 @@ def CalculateWinner(PlayerCard, EnemyCard, Username):
             Game_StateCAL="LOSE"
             session['BotPoints'] +=1
         if GameOver == True:
-            session['PlayerPoints'] = 0
-            session['BotPoints'] = 0
             print("Game over!")
-            if session['PlayerPoints'] == 20 and session['BotPoints'] < 20:
+            if session['PlayerPoints'] == 20 or session['BotPoints'] < 20:
                 wins = wins + 1
                 print(wins)
                 query = {"username": session["user_data"]["login"]} 
@@ -259,11 +258,17 @@ def CalculateWinner(PlayerCard, EnemyCard, Username):
 
                 print("WINS " + str(wins))
                 updateScore(session["user_data"]["login"], "wins", wins)
+                """session['PlayerWin'] = session['PlayerWin'] + 1
+                print("win " + str(win))
+                win = win + 1
+                updateScore(session["user_data"]["login"], "win", win)"""
             else:
                 session['PlayerLoss'] = session['PlayerLoss'] + 1
                 print("LOSS " + str(loss))
                 loss = loss + 1
                 updateScore(session["user_data"]["login"], "loss", loss)
+            #session['PlayerPoints'] = 0
+            #session['BotPoints'] = 0
             print(session['PlayerWin'], session['PlayerLoss'])
     return Game_StateCAL
 
